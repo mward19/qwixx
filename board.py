@@ -33,7 +33,7 @@ class Square:
         self.value = value
         self.x = False
 
-    def term_rep(self, width=3):
+    def term_rep(self, width=4):
         text = Color.color_text(self.color, self.value)
         if self.x:
             text = strikethrough_text(text)
@@ -41,9 +41,52 @@ class Square:
         padding = ' ' * (width - len(str(self.value)))
         return text + padding
     
+    # TODO: Doesn't implement crossing out
     def __str__(self):
         return (str(self.color) + str(self.value))
+    
+class Row:
+    def __init__(self, squares):
+        self.squares = squares
+        self.locked = False
+    
+    def __len__(self):
+        return len(self.squares)
+    
+    def lock(self):
+        self.locked = True
+    
+    def locked(self):
+        return self.locked
 
+    def term_rep(self):
+        text = ""
+        row_len = len(self)
+        # Display each square
+        for square in self.squares:
+            text += square.term_rep()
+        
+        # Display lock icon
+        lock_icon = Color.color_text(self.squares[-1].color, "L")
+        if self.squares[-1].x: 
+            text += strikethrough_text(lock_icon)
+        else:
+            text += lock_icon
+        
+        return text
+
+    # TODO: Doesn't implement crossing out
+    def __str__(self): 
+        sq_size = 4
+        row_len = len(self)
+        # Display each square
+        for square in self.squares:
+            text += str(square).ljust(sq_size)
+        
+        # Display lock icon
+        text += str(self.squares[-1].color) + "L"
+        
+        return text  
 
 class Board:
     """
@@ -59,10 +102,10 @@ class Board:
     
     def get_default_board():
         # Generate rows of Squares
-        red_row =    [Square(Color.RED,    dice_val) for dice_val in range(2, 13)]
-        yellow_row = [Square(Color.YELLOW, dice_val) for dice_val in range(2, 13)]
-        green_row =  [Square(Color.GREEN,  dice_val) for dice_val in range(12, 1, -1)]
-        blue_row =   [Square(Color.BLUE,   dice_val) for dice_val in range(12, 1, -1)]
+        red_row =    Row([Square(Color.RED,    dice_val) for dice_val in range(2, 13)])
+        yellow_row = Row([Square(Color.YELLOW, dice_val) for dice_val in range(2, 13)])
+        green_row =  Row([Square(Color.GREEN,  dice_val) for dice_val in range(12, 1, -1)])
+        blue_row =   Row([Square(Color.BLUE,   dice_val) for dice_val in range(12, 1, -1)])
 
         # Stack rows
         board = [red_row, yellow_row, green_row, blue_row]
@@ -71,13 +114,10 @@ class Board:
     def term_rep(self):
         text = ""
         for row in self.board:
-            row_len = len(row)
-            for col, square in enumerate(row):
-                text += square.term_rep()
+            text += row.term_rep()
             text += "\n"
         return text
         
-
     def __str__(self):
         return 0 # TODO
 
