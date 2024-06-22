@@ -21,8 +21,9 @@ class Board:
 
         # Stack rows, save as self.rows
         self.rows = [red_row, yellow_row, green_row, blue_row]
+        self.penalty_val = 5
         self.penalties = 0
-        
+
         self.MAX_PENALTIES = 3
     
     
@@ -63,16 +64,22 @@ class Board:
     def __iter__(self):
         return self.rows
     
-    def valid_place(self, option, square):
+    def valid_place(self, option, row_index, sq_index):
         """
-        Checks if `option` (tuple: (Color, value)) can be played on a square
+        Checks if `option` (tuple: (Color, value)) can be played on a given square
         """
+        row = self.rows[row_index]
+        square = row[sq_index]
         color, value = option
-        return (
-            Color.compatible(color, square.color) and
-            value == square.value and
-            not square.x
-        )
+
+        # Must be of a compatible color 
+        color_cond     = (Color.compatible(color, square.color))
+        # Must share square value
+        value_cond     = (value == square.value)
+        # No squares marked to the here or to the right
+        placement_cond = (True not in [sq.marked for sq in row[sq_index:]])
+        
+        return color_cond and value_cond and placement_cond
     
     def placements(self, option):
         """
@@ -83,9 +90,19 @@ class Board:
         placements = []
         for row_index, row in enumerate(self.board):
             for col_index, square in enumerate(row):
-                if self.valid_place(option, square):
+                if self.valid_place(option, row_index, col_index):
                     placements.append(coord_to_A1(row_index, col_index))
         return placements
+    
+    def score(self):
+        score = 0
+        # Score rows
+        for row in self.rows:
+            score += row.score()
+        # Score penalties
+        score -= self.penalties * self.penalty_val
+
+        return score
     
     def __getitem__(self, index):
         return self.rows[index]

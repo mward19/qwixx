@@ -15,6 +15,14 @@ class Player:
     
     def penalize(self):
         return self.board.add_penalty()
+    
+    def valid_options(self, dice):
+        """ Uses dice's (DiceSet) last roll to calculate all possible moves. """
+        all_options = dice.options()
+        valid_options = []
+        for option in all_options:
+            valid_options.append(self.board.placements(option))
+        return valid_options
 
     
             

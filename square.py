@@ -8,23 +8,26 @@ class Square:
     Attributes:
         color (Color): The color of the square
         value (int): The dice sum required to mark this square
-        x (bool): If true, the square is marked (x'ed).
+        marked (bool): If true, the square is marked.
     """
-    def __init__(self, color, value, lock=False):
+    def __init__(self, color, value):
         self.color = color
         self.value = value
-        self.x = False
+        self.marked = False
 
     def mark(self):
-        if self.x: raise(RuntimeError("Square already marked"))
-        self.x = True
+        if self.marked: raise(RuntimeError("Square already marked"))
+        self.marked = True
     
-    def term_rep(self, width=6):
+    def term_rep(self, border="·", width=6):
         """
         A colored representation using ANSI escape sequences for terminals.
         """
-        text = Color.color_text(self.color, ("·" + str(self.value) + "·").center(width))
-        if self.x:
+        text = Color.color_text(
+            self.color,
+            (border + str(self.value) + border).center(width)
+        )
+        if self.marked:
             text = strikethrough_text(text)
         return text
     

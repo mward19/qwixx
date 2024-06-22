@@ -84,10 +84,9 @@ class DiceSet:
     
     def options(self):
         """ 
-        Rolls the dice and returns all play options as (Color, value)
+        Using last roll, returns all play options as (Color, value)
         tuples by combining sets of two dice.
         """
-        self.roll()
         play_options = []
 
         # Get colorless combinations, usable by all players.
