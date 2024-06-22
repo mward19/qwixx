@@ -6,10 +6,14 @@ import random
 
 class GameInTerminal:
     def __init__(self, players):
+        if len(players) > 8:
+            raise(ValueError("More than 8 players is not supported"))
         self.players = players
         self.dice = DiceSet()
     
     def __init__(self, names):
+        if len(names) > 8:
+            raise(ValueError("More than 8 players is not supported"))
         self.players = [Player(name, Board()) for name in names]
         self.dice = DiceSet()
 
@@ -25,12 +29,34 @@ class GameInTerminal:
         # First, choose player order by permuting self.players
         self.players = random.shuffle(self.players)
         # Begin game loop
-        game_over = False
-        while not game_over:
-            game_over = self.play_round()
+        while True:
+            game_over = False
+            for player in self.players:
+                game_over = player.terminal_turn()
+                if game_over: break
+            if game_over: break
         
-        # Display final scores
+        # Display final scores. Sort scores in reverse order (1st is first)
+        scored = [(p, p.board.score()) for p in self.players].sort(
+            key=lambda x: x[1],
+            reverse=True
+        )
+        print("~~~ PODIUM ~~~")
+        ordinals = {
+            1: "1st", 
+            2: "2nd", 
+            3: "3rd", 
+            4: "4th", 
+            5: "5th", 
+            6: "6th", 
+            7: "7th", 
+            8: "8th"
+        }
+        place = 1
+        print(f"Congratulations, {scored[0][0].name}!")
+        for (player, score) in enumerate(scored):
+            print(f"{ordinals[place+1]} place:
+                  {player.name} with {score} point(s).")
         
-    def 
 
 

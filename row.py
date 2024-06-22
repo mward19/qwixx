@@ -44,7 +44,7 @@ class Row:
         if True in marks[index:]:
             return False
         # Do not allow locking with less than self.lock_min marks
-        if index == len(self.squares - 1) and sum(marks) < self.lock_min:
+        if (index == len(self.squares)-1) and (sum(marks) < self.lock_min):
             return False
         
         # Otherwise, proceed with the mark

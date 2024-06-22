@@ -1,5 +1,7 @@
 from dice import DiceSet
 from color import Color
+import keyboard
+import time
 
 
 class Player:
@@ -23,6 +25,24 @@ class Player:
         for option in all_options:
             valid_options.append(self.board.placements(option))
         return valid_options
+    
+    def terminal_turn(self, dice):
+        """ Take a turn. """
+        # Display the board.
+        print(str(self.board))
+
+        # Let the player roll the dice. Simulate dice rolling.
+        while not (keyboard.is_pressed('space') or keyboard.is_pressed('enter')):
+            print(dice.roll())
+            time.sleep(0.01)
+            print('\r') # Carriage return to print again
+        # Roll once more
+        print(dice.roll)
+
+        
+    
+    def __str__(self):
+        return self.name
 
     
             

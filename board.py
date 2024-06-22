@@ -64,6 +64,9 @@ class Board:
     def __iter__(self):
         return self.rows
     
+    def mark(self, row_index, col_index):
+        return self.rows[row_index].mark(col_index)
+    
     def valid_place(self, option, row_index, sq_index):
         """
         Checks if `option` (tuple: (Color, value)) can be played on a given square
