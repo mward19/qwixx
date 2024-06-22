@@ -1,5 +1,7 @@
 from dice import DiceSet
 from color import Color
+from utils import A1_to_coord
+from utils import coord_to_A1
 
 class Player:
     """ Abstraction of a player in Qwixx. """
@@ -18,7 +20,7 @@ class Player:
     def placements(self, option):
         """
         Checks where `option` (tuple: (Color, value)) can be played on the board.
-        Returns a list of "A1" (row, column) style coordinates (potentially empty).
+        Returns a list of (row, column) coordinate tuples (potentially empty).
         """
         color, value = option
         placements = []
