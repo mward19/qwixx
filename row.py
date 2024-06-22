@@ -3,6 +3,13 @@ from color import Color
 from utils import strikethrough_text
 
 class Row:
+    """ 
+    A row of squares for a Qwixx board.
+    
+    Attributes:
+        squares (list of Squares): A list of Qwixx board squares
+        locked (bool): If true, the row is locked
+    """
     def __init__(self, squares):
         self.squares = squares
         self.locked = False
@@ -16,12 +23,15 @@ class Row:
     def locked(self):
         return self.locked
 
-    def term_rep(self):
+    def term_rep(self, sq_width=6):
+        """
+        A colored representation using ANSI escape sequences for terminals.
+        """
         text = ""
         row_len = len(self)
         # Display each square
         for square in self.squares:
-            text += square.term_rep()
+            text += square.term_rep(sq_width)
         
         # Display lock icon
         lock_icon = Color.color_text(self.squares[-1].color, "L")

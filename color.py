@@ -5,17 +5,20 @@ class Color(Enum):
     YELLOW = 'Y'
     GREEN = 'G'
     BLUE = 'B'
+    NO_COLOR = 'W'
 
     def __str__(self):
         return self.value
     
     def color_text(color, text):
         """ Color text for ANSI escape sequence supporting terminals. """
+        if color == Color.NO_COLOR: return str(text)
+        
         color_term_prefix = {
-            Color.RED:    "\033[91m",
-            Color.YELLOW: "\033[93m",
-            Color.GREEN:  "\033[92m",
-            Color.BLUE:   "\033[94m"
+            Color.RED:      "\033[91m",
+            Color.YELLOW:   "\033[93m",
+            Color.GREEN:    "\033[92m",
+            Color.BLUE:     "\033[94m",
         }
 
         color_term_suffix = "\033[0m"
