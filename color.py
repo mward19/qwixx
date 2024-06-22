@@ -24,3 +24,9 @@ class Color(Enum):
         color_term_suffix = "\033[0m"
 
         return color_term_prefix[color] + str(text) + color_term_suffix
+    
+    def compatible(die_color, square_color):
+        """
+        Checks if the die color is compatible with the square color.
+        """
+        return die_color == square_color or die_color == Color.NO_COLOR

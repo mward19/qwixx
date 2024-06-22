@@ -1,6 +1,8 @@
 from row import Row
 from square import Square
 from color import Color
+from utils import A1_to_coord
+from utils import coord_to_A1
 
 class Board:
     """
@@ -58,6 +60,36 @@ class Board:
     def __str__(self):
         return 0 
     
+    def __iter__(self):
+        return self.rows
+    
+    def valid_place(self, option, square):
+        """
+        Checks if `option` (tuple: (Color, value)) can be played on a square
+        """
+        color, value = option
+        return (
+            Color.compatible(color, square.color) and
+            value == square.value and
+            not square.x
+        )
+    
+    def placements(self, option):
+        """
+        Checks where `option` (tuple: (Color, value)) can be played on the board.
+        Returns a list of 'A1' coordinate strings (potentially empty).
+        """
+        color, value = option
+        placements = []
+        for row_index, row in enumerate(self.board):
+            for col_index, square in enumerate(row):
+                if self.valid_place(option, square):
+                    placements.append(coord_to_A1(row_index, col_index))
+        return placements
+    
+    def __getitem__(self, index):
+        return self.rows[index]
+
 if __name__ == "__main__":
     board = Board()
     print(board.term_rep())

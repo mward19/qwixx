@@ -17,6 +17,12 @@ class Row:
     def __len__(self):
         return len(self.squares)
     
+    def __iter__(self):
+        return self.squares
+    
+    def __getitem__(self, index):
+        return self.squares[index]
+    
     def lock(self):
         self.locked = True
     

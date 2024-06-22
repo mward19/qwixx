@@ -15,6 +15,10 @@ class Square:
         self.value = value
         self.x = False
 
+    def mark(self):
+        if self.x: raise(RuntimeError("Square already marked"))
+        self.x = True
+    
     def term_rep(self, width=6):
         """
         A colored representation using ANSI escape sequences for terminals.
