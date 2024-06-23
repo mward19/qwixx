@@ -3,6 +3,12 @@ from square import Square
 from color import Color
 from utils import A1_to_coord
 from utils import coord_to_A1
+from enum import Enum
+
+class BoardState(Enum):
+    CONTINUE = 0
+    LOCKED = 1
+    PENALTIES = 2
 
 class Board:
     """
@@ -25,6 +31,7 @@ class Board:
         self.penalties = 0
 
         self.MAX_PENALTIES = 3
+        self.MAX_LOCK = 1
     
     
     def term_rep(self, sq_width=6):
@@ -67,6 +74,9 @@ class Board:
     def mark(self, row_index, col_index):
         return self.rows[row_index].mark(col_index)
     
+    def A1_mark(self, A1_coord):
+        return self.mark(*A1_to_coord(A1_coord))
+    
     def valid_place(self, option, row_index, sq_index):
         """
         Checks if `option` (tuple: (Color, value)) can be played on a given square
@@ -106,6 +116,14 @@ class Board:
         score -= self.penalties * self.penalty_val
 
         return score
+
+    def get_state(self):
+        # Count locked rows
+        locked_rows = [True if row.locked else False for row in self.rows]
+
+        if locked_rows > self.MAX_LOCK:             return BoardState.LOCKED
+        elif self.penalties > self.MAX_PENALTIES:   return BoardState.PENALTIES
+        else:                                       return BoardState.CONTINUE
     
     def __getitem__(self, index):
         return self.rows[index]

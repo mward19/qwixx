@@ -1,16 +1,11 @@
 from player import Player
 from dice import DiceSet
 from board import Board
+from board import BoardState
 from color import Color
 import random
 
 class GameInTerminal:
-    def __init__(self, players):
-        if len(players) > 8:
-            raise(ValueError("More than 8 players is not supported"))
-        self.players = players
-        self.dice = DiceSet()
-    
     def __init__(self, names):
         if len(names) > 8:
             raise(ValueError("More than 8 players is not supported"))
@@ -26,15 +21,16 @@ class GameInTerminal:
               Color.color_text(Color.BLUE, 'X') +
               "!"
             )
-        # First, choose player order by permuting self.players
-        self.players = random.shuffle(self.players)
+        # First, shuffle player order
+        random.shuffle(self.players)
         # Begin game loop
         while True:
-            game_over = False
+            state = BoardState.CONTINUE
             for player in self.players:
-                game_over = player.terminal_turn()
-                if game_over: break
-            if game_over: break
+                state = player.terminal_turn()
+                if state != BoardState.CONTINUE: break
+            #TODO: IMPLEMENT MULTIPLAYER LOCKING WITH BOARDSTATE
+            if state != BoardState.CONTINUE: break
         
         # Display final scores. Sort scores in reverse order (1st is first)
         scored = [(p, p.board.score()) for p in self.players].sort(
@@ -55,8 +51,14 @@ class GameInTerminal:
         place = 1
         print(f"Congratulations, {scored[0][0].name}!")
         for (player, score) in enumerate(scored):
-            print(f"{ordinals[place+1]} place:
-                  {player.name} with {score} point(s).")
+            score_statement = (f"{ordinals[place+1]} place:"
+                               f"{player.name} with {score} point(s).")
+            print(score_statement)
+            
+if __name__ == "__main__":
+    names = [f"Player {i}" for i in range(1, 4)]
+    game = GameInTerminal(names)
+    game.play()
         
 
 

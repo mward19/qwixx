@@ -1,7 +1,10 @@
 from dice import DiceSet
 from color import Color
+from board import Board
+from board import BoardState
 import keyboard
 import time
+from utils import A1_to_coord
 
 
 class Player:
@@ -28,6 +31,7 @@ class Player:
     
     def terminal_turn(self, dice):
         """ Take a turn. """
+        print(f"~~~ {str(self)} ~~~")
         # Display the board.
         print(str(self.board))
 
@@ -39,7 +43,31 @@ class Player:
         # Roll once more
         print(dice.roll)
 
+        # Get possible moves
+        options = self.valid_options(dice)
+
+        # Let the player make a move
+        valid_choice = False
+        while not valid_choice:
+            # TODO: clean up the display of options
+            print("Options: " + options)
+            user_input = input("Choose your move (submit \"-\" for penalty): ")
+            if user_input.strip() == "-":
+                valid_choice = True
+                self.penalize()
+            else:
+                valid_choice = self.board.A1_mark(user_input.strip())
         
+        # Display new score
+        print(f"Your current score is {self.score()}.")
+
+        return self.get_state()
+        
+    def score(self):
+        return self.board.score()
+    
+    def get_state(self):
+        return self.board.get_state()
     
     def __str__(self):
         return self.name

@@ -48,16 +48,16 @@ def test_score():
 
     board.add_penalty()
     assert board.score() == -5
-    board.mark(0, 7)
+    board.A1_mark("A8")
     assert board.score() == -4
 
     board.mark(1, 1)
     assert board.score() == -3
-    board.mark(1, 2)
+    board.A1_mark("B3")
     assert board.score() == -1
     board.mark(1, 4)
     assert board.score() == 2
-    board.mark(1, 5) 
+    board.A1_mark("B6") 
     assert board.score() == 6
     board.mark(1, 9) 
     assert board.score() == 11
