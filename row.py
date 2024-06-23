@@ -1,6 +1,7 @@
 from square import Square
 from color import Color
 from utils import strikethrough_text
+from utils import color_center
 
 class Row:
     """ 
@@ -55,7 +56,7 @@ class Row:
         return len(self.squares)
     
     def __iter__(self):
-        return self.squares
+        return iter(self.squares)
     
     def __getitem__(self, index):
         return self.squares[index]
@@ -71,7 +72,7 @@ class Row:
         row_len = len(self)
         # Display each square
         for square in self.squares:
-            text += square.term_rep(sq_width)
+            text += color_center(square.term_rep(), sq_width)
         
         # Display lock icon
         lock_icon = Color.color_text(self.squares[-1].color, "L")

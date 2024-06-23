@@ -4,6 +4,8 @@ from color import Color
 from utils import A1_to_coord
 from utils import coord_to_A1
 from enum import Enum
+import shutil
+from utils import color_center
 
 class BoardState(Enum):
     CONTINUE = 0
@@ -38,20 +40,30 @@ class Board:
         """
         Yields a colored representation for terminals using ANSI escape sequences.
         """
+        terminal_size = shutil.get_terminal_size().columns
         max_row_len = max([len(row) for row in self.rows])
         lmargin = 3
 
+        text= ""
         # A header, with numeric column coordinates.
-        text = ' ' * lmargin
-        text += ''.join([str(column).center(sq_width)
+        text_row = ' ' * lmargin
+        text_row += ''.join([str(column).center(sq_width)
                          for column in range(1, max_row_len+1)])
-        text += "\n"
+        text_row = color_center(text_row, terminal_size)
+        text += text_row + "\n"
 
+        # The rows of the board.
         for row_index, row in enumerate(self.rows):
+            text_row = ""
             # Index rows with letters, calculated with ASCII codes
-            text += chr(65 + row_index).rjust(lmargin) 
-            text += row.term_rep(sq_width)
-            text += "\n"
+            text_row += chr(65 + row_index).rjust(lmargin) 
+            text_row += row.term_rep(sq_width)
+            text_row = color_center(text_row, terminal_size)
+            text += text_row + "\n"
+        
+        # Penalties.
+        text += f"Penalties: {self.penalties}".center(terminal_size)
+        
         return text
     
     def add_penalty(self):
@@ -101,7 +113,7 @@ class Board:
         """
         color, value = option
         placements = []
-        for row_index, row in enumerate(self.board):
+        for row_index, row in enumerate(self.rows):
             for col_index, square in enumerate(row):
                 if self.valid_place(option, row_index, col_index):
                     placements.append(coord_to_A1(row_index, col_index))
@@ -119,7 +131,7 @@ class Board:
 
     def get_state(self):
         # Count locked rows
-        locked_rows = [True if row.locked else False for row in self.rows]
+        locked_rows = sum([True if row.locked else False for row in self.rows])
 
         if locked_rows > self.MAX_LOCK:             return BoardState.LOCKED
         elif self.penalties > self.MAX_PENALTIES:   return BoardState.PENALTIES

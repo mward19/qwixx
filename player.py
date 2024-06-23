@@ -4,7 +4,10 @@ from board import Board
 from board import BoardState
 import keyboard
 import time
+import shutil
 from utils import A1_to_coord
+from utils import color_center
+from utils import clear_terminal
 
 
 class Player:
@@ -31,17 +34,22 @@ class Player:
     
     def terminal_turn(self, dice):
         """ Take a turn. """
-        print(f"~~~ {str(self)} ~~~")
+        terminal_size = shutil.get_terminal_size().columns
+        print(color_center(f"~~~ {str(self)} ~~~", terminal_size))
         # Display the board.
-        print(str(self.board))
+        print(self.board.term_rep())
 
-        # Let the player roll the dice. Simulate dice rolling.
-        while not (keyboard.is_pressed('space') or keyboard.is_pressed('enter')):
-            print(dice.roll())
-            time.sleep(0.01)
-            print('\r') # Carriage return to print again
-        # Roll once more
-        print(dice.roll)
+        ## Let the player roll the dice. Simulate dice rolling.
+        ## TODO: Not possible without root privileges
+        #while not (keyboard.is_pressed('space') or keyboard.is_pressed('enter')):
+        #    dice.roll()
+        #    print(dice.term_rep())
+        #    time.sleep(0.01)
+        #    print('\r') # Carriage return to print again
+        ## Roll once more
+        dice.roll()
+        print()
+        print(dice.term_rep())
 
         # Get possible moves
         options = self.valid_options(dice)
@@ -50,7 +58,7 @@ class Player:
         valid_choice = False
         while not valid_choice:
             # TODO: clean up the display of options
-            print("Options: " + options)
+            print("Options: " + str(options))
             user_input = input("Choose your move (submit \"-\" for penalty): ")
             if user_input.strip() == "-":
                 valid_choice = True
@@ -58,8 +66,14 @@ class Player:
             else:
                 valid_choice = self.board.A1_mark(user_input.strip())
         
-        # Display new score
-        print(f"Your current score is {self.score()}.")
+        # Display new score and modified board
+        clear_terminal()
+        print(self.board.term_rep())
+        print(f"Your current score is {self.score()}.".center(terminal_size))
+        time.sleep(3)
+        print()
+        input("Press enter to continue.".center(terminal_size))
+        clear_terminal()
 
         return self.get_state()
         

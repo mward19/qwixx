@@ -2,6 +2,8 @@ from color import Color
 import random
 from itertools import combinations
 from itertools import product
+import shutil
+from utils import color_center
 
 class Die:
     """
@@ -56,14 +58,14 @@ class DiceSet:
         sides = [6 for c in colors]
 
         # Create the dice, for convenience separate into white and colored groups
-        self.dice = set()
-        self.white_dice = set()
-        self.colored_dice = set()
+        self.dice = []
+        self.white_dice = []
+        self.colored_dice = []
         for (c, s) in zip(colors, sides):
             d = Die(c, s)
-            self.dice.add(d)
-            if d.color == Color.NO_COLOR: self.white_dice.add(d)
-            else: self.colored_dice.add(d)
+            self.dice.append(d)
+            if d.color == Color.NO_COLOR: self.white_dice.append(d)
+            else: self.colored_dice.append(d)
             
 
     def __str__(self):
@@ -73,10 +75,11 @@ class DiceSet:
         return output
     
     def term_rep(self):
+        terminal_size = shutil.get_terminal_size().columns
         output = ""
         for d in self.dice:
             output += d.term_rep() + " "
-        return output
+        return color_center(output, terminal_size)
         
     def roll(self):
         for die in self.dice: die.roll()
@@ -90,7 +93,7 @@ class DiceSet:
         play_options = []
 
         # Get colorless combinations, usable by all players.
-        for (d1, d2) in combinations(self.white_dice):
+        for (d1, d2) in combinations(self.white_dice, 2):
             play_options.append((Color.NO_COLOR, d1+d2))
 
         # Get colored combinations

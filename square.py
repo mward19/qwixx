@@ -19,13 +19,13 @@ class Square:
         if self.marked: raise(RuntimeError("Square already marked"))
         self.marked = True
     
-    def term_rep(self, border="·", width=6):
+    def term_rep(self, border="·"):
         """
         A colored representation using ANSI escape sequences for terminals.
         """
         text = Color.color_text(
             self.color,
-            (border + str(self.value) + border).center(width)
+            str(border) + str(self.value) + str(border)
         )
         if self.marked:
             text = strikethrough_text(text)

@@ -4,6 +4,10 @@ from board import Board
 from board import BoardState
 from color import Color
 import random
+import time
+import shutil
+from utils import color_center
+from utils import clear_terminal
 
 class GameInTerminal:
     def __init__(self, names):
@@ -13,21 +17,26 @@ class GameInTerminal:
         self.dice = DiceSet()
 
     def play(self):
-        print("Welcome to " +
+        terminal_size = shutil.get_terminal_size().columns
+        clear_terminal()
+        print(color_center("Welcome to " +
               Color.color_text(Color.RED, 'Q') +
               Color.color_text(Color.YELLOW, 'W') +
               Color.color_text(Color.NO_COLOR, 'I') +
               Color.color_text(Color.GREEN, 'X') +
               Color.color_text(Color.BLUE, 'X') +
-              "!"
-            )
+              "!",
+            terminal_size)
+        )
+        time.sleep(1)
+
         # First, shuffle player order
         random.shuffle(self.players)
         # Begin game loop
         while True:
             state = BoardState.CONTINUE
             for player in self.players:
-                state = player.terminal_turn()
+                state = player.terminal_turn(self.dice)
                 if state != BoardState.CONTINUE: break
             #TODO: IMPLEMENT MULTIPLAYER LOCKING WITH BOARDSTATE
             if state != BoardState.CONTINUE: break
@@ -56,7 +65,8 @@ class GameInTerminal:
             print(score_statement)
             
 if __name__ == "__main__":
-    names = [f"Player {i}" for i in range(1, 4)]
+    #names = [f"Player {i}" for i in range(1, 4)]
+    names = ["sticc", "grass"]
     game = GameInTerminal(names)
     game.play()
         

@@ -1,3 +1,6 @@
+import re
+import os
+
 def strikethrough_text(text):
     """ Yields text with strikethrough using ANSI escape sequence. """
     strike_prefix = "\033[9m"
@@ -26,3 +29,31 @@ def A1_to_coord(text):
     letter_index = ord(letter) - 65
     number_index = int(number) - 1
     return (letter_index, number_index)
+
+def color_str_length(text):
+    """ Returns the length of text after removing ANSI escape sequences. """
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    text_without_ansi = ansi_escape.sub('', text)
+    return len(text_without_ansi)
+
+def color_center(text, width, spacer=' '):
+    """
+    Centers text with a specified spacer at a given width, 
+    using color_str_length to find string length.
+    """
+    # Calculate the padding on each side
+    padding = (width - color_str_length(text)) // 2
+    spacer_string = spacer * padding
+
+    centered = f"{spacer_string}{text}{spacer_string}"
+    # If the centering cannot be perfect, length will be one less than it should.
+    if color_str_length(centered) == width:     return centered
+    elif color_str_length(centered) == width-1: return centered + spacer
+    else: raise(RuntimeError("Centering failed, system error"))
+
+def clear_terminal():
+    # Check the operating system
+    if os.name == 'nt':  # For Windows
+        os.system('cls')
+    else:  # For Mac and Linux
+        os.system('clear')

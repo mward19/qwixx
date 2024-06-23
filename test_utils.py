@@ -1,4 +1,5 @@
 import pytest
+from color import Color
 import utils
 
 def test_coord_to_A1():
@@ -29,4 +30,20 @@ def test_A1_to_coord():
     loc4 = "B-2"
     with pytest.raises(ValueError):
         utils.A1_to_coord(loc4)
+    
+def test_color_utils():
+    even = Color.color_text(Color.RED, 'even')
+    assert utils.color_str_length(even) == 4
+    centered_even = utils.color_center(even, 8)
+    assert utils.color_str_length(centered_even) == 8
+    assert centered_even[0] == ' '
+    assert centered_even[-1] == ' '
+
+    odd = Color.color_text(Color.RED, 'odd')
+    assert utils.color_str_length(odd) == 3
+    centered_odd = utils.color_center(odd, 6)
+    assert utils.color_str_length(centered_odd) == 6
+    assert centered_odd[0] == ' '
+    assert centered_odd[-1] == ' '
+
     
