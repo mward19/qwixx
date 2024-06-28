@@ -2,7 +2,6 @@ from dice import DiceSet
 from color import Color
 from board import Board
 from board import BoardState
-import keyboard
 import time
 import shutil
 from utils import A1_to_coord
