@@ -1,3 +1,5 @@
+### DEPRECATED ###
+
 from player import Player
 from dice import DiceSet
 from board import Board
