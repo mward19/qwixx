@@ -1,5 +1,4 @@
-# Turns
-- Turn validation (penalties and passing)
-- lowercase and uppercase for A1 notation (a1)
+# End of Game
+Make one player's lock lock all other players on that row
 
 All other #TODO comments in the code

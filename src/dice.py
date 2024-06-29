@@ -48,12 +48,12 @@ class DiceSet:
     def __init__(self):
         """ Default set of dice: red, yellow, green, blue, white, white. """
         colors = [
+            Color.NO_COLOR,
+            Color.NO_COLOR,
             Color.RED,
             Color.YELLOW, 
             Color.GREEN, 
-            Color.BLUE, 
-            Color.NO_COLOR, 
-            Color.NO_COLOR
+            Color.BLUE
             ]
         sides = [6 for c in colors]
 

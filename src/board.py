@@ -3,6 +3,7 @@ from square import Square
 from color import Color
 from utils import A1_to_coord
 from utils import coord_to_A1
+from utils import valid_A1
 from enum import Enum
 import shutil
 from utils import color_center
@@ -87,7 +88,9 @@ class Board:
         return self.rows[row_index].mark(col_index)
     
     def A1_mark(self, A1_coord):
-        return self.mark(*A1_to_coord(A1_coord))
+        if not valid_A1(A1_coord, len(self.rows), 1+max([len(row) for row in self.rows])): return False
+        coord = A1_to_coord(A1_coord)
+        return self.mark(*coord)
     
     def valid_place(self, option, row_index, sq_index):
         """

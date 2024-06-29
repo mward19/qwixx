@@ -7,8 +7,12 @@ import random
 from qwixx_game import QwixxGame
 import shutil
 from utils import color_center
+from utils import ansi_center
+from utils import strikethrough
+from utils import bold
 from utils import coord_to_A1
 from utils import clear_terminal # TODO: rename "utils" as "termutils" or similar
+import time
 
 class QwixxTerm(QwixxGame):
     """
@@ -48,6 +52,8 @@ class QwixxTerm(QwixxGame):
         for d in self.dice:
             if d.color == Color.NO_COLOR:
                 output += self.show_die(d) + " "
+            else:
+                output += strikethrough(self.show_die(d)) + " "
         print(color_center(output, terminal_size))
     
     def show_die(self, die):
@@ -63,52 +69,81 @@ class QwixxTerm(QwixxGame):
         choices_A1 = [coord_to_A1(*c) for c in choices]
         print(", ".join(choices_A1))
 
-    def white_choice(self, player):
+    def white_choice_offturn(self, this_player, turn_player):
         """
         Displays the white die options for `player`.
         Allows them to choose which option they will take.
         Returns:
-            (bool) If the choice was successful
+            (bool) If a square was marked (false if pass or penalty)
         """
-        #TODO: make it allow pass if not your turn
+        options = this_player.valid_white_options(self.dice)
+
+        # Let the player make a move using A1 notation
+        valid_choice = False
+        pass_turn = False
+        while not valid_choice:
+            #self.display_choices(options) # TODO: I think this is distracting
+            message = "Choose your move (\"-\" to opt out): "
+            user_input = input(message)
+            if user_input.strip() == "-":
+                valid_choice = True
+                pass_turn = True
+            else:
+                # TODO: Force this to only accept white choice (replace A1_mark)
+                valid_choice = this_player.board.A1_mark(user_input.strip())
+
+        return pass_turn
+    
+    def white_choice_turn(self, player):
+        """
+        Displays the white die options for `player`.
+        Allows them to choose which option they will take.
+        Returns:
+            (bool) If a square was marked (false if pass or penalty)
+        """
         options = player.valid_white_options(self.dice)
 
         # Let the player make a move using A1 notation
         valid_choice = False
+        pass_turn = False
         while not valid_choice:
-            self.display_choices(options)
-            user_input = input("Choose your white move (submit \"-\" for penalty): ")
+            #self.display_choices(options) # TODO: I think this is distracting
+            message = "Choose your white move (\"-\" to opt out): "
+            user_input = input(message)
             if user_input.strip() == "-":
                 valid_choice = True
-                player.penalize()
+                pass_turn = True
             else:
                 # TODO: Force this to only accept white choice (replace A1_mark)
                 valid_choice = player.board.A1_mark(user_input.strip())
 
-        return True
+        return pass_turn
     
-    def color_choice(self, player):
+    # TODO: fix character length so that white and colored moves have same width
+    def color_choice_turn(self, player):
         """
         Displays the color die options for `player`.
         Allows them to choose which option they will take.
         Returns:
-            (bool) If the choice was successful
+            (bool) If a square was marked (false if pass or penalty)
         """
         options = player.valid_color_options(self.dice)
 
         # Let the player make a move using A1 notation
         valid_choice = False
+        pass_turn = False
         while not valid_choice:
-            self.display_choices(options)
-            user_input = input("Choose your colored move (submit \"-\" for penalty): ")
+            #self.display_choices(options) # TODO: I think this is distracting
+            message = "Choose your colored move (\"-\" to opt out): "
+            user_input = input(message)
             if user_input.strip() == "-":
                 valid_choice = True
-                player.penalize()
+                pass_turn = True
             else:
-                # TODO: Force this to only accept color choice (replace A1_mark)
+                # TODO: Force this to only accept white choice (replace A1_mark)
                 valid_choice = player.board.A1_mark(user_input.strip())
 
-        return True
+        return pass_turn
     
     def all_choice(self, player):
         """
@@ -116,11 +151,21 @@ class QwixxTerm(QwixxGame):
         Allows them to choose which option(s) they will take.
         If no option is chosen, invokes a penalty on the player.
         Returns:
-            (bool) If the choice was successful
+            (bool) If a penalty was taken
         """
-        success_white = self.white_choice(player)
-        success_color = self.color_choice(player)
-        return success_white and success_color
+        pass_white = self.white_choice_turn(player) #TODO: display updated board
+        pass_color = self.color_choice_turn(player)
+        penalize = pass_white and pass_color
+        if penalize: self.penalize(player)
+        return penalize
+    
+    def penalize(self, player):
+        player.penalize()
+        self.display_penalize(player)
+
+    def display_penalize(self, player):
+        terminal_size = shutil.get_terminal_size().columns
+        print(f"{player.name} took a penalty!".center(terminal_size))
 
     def display_all_options(self, player):
         """
@@ -169,13 +214,13 @@ class QwixxTerm(QwixxGame):
         
         # Penalties. TODO: give board.penalties a get method
         text += f"Penalties: {board.penalties}".center(terminal_size)
-        
         print(text)
     
     def display_boards(self):
         """
         Displays all players' boards, with equal priority.
         """
+        clear_terminal()
         for player in self.players:
             self.display_board(player)
             print()
@@ -224,7 +269,97 @@ class QwixxTerm(QwixxGame):
             terminal_size)
         )
 
+    def play_game(self, player_order=None):
+        terminal_size = shutil.get_terminal_size().columns
+        self.display_intro()
+        time.sleep(1)
+
+        # If no player_order is provided, use a random order
+        if player_order == None:
+            player_order = random.sample(self.players, len(self.players))
+        
+        self.display_player_order(player_order)
+        time.sleep(1)
+        input("Press enter to continue.".center(terminal_size))
+
+        # TODO: implement mutiplayer locking with boardstates
+        # Begin turns
+        state = BoardState.CONTINUE
+        while True:
+            for p_index, p in enumerate(player_order):
+                clear_terminal()
+                print(ansi_center(f"{bold(p.name)}, it is your turn.", terminal_size))
+                time.sleep(0.5)
+                self.display_board(p)
+                time.sleep(0.5)
+                self.roll_dice()
+                self.display_dice() # Let this player see the roll they made
+                time.sleep(0.5)
+
+                # Let other players use white roll
+                other_players = self.get_other_players(player_order, p, p_index)
+                print(ansi_center(
+                    (f"{bold(p.name)}, wait as other players "
+                    "decide if they will use the white roll."), terminal_size)
+                )
+                input("Press enter to continue.".center(terminal_size))
+                for other_p in other_players:
+                    clear_terminal()
+                    print(ansi_center(
+                        (f"{bold(other_p.name)}, choose how/if you will "
+                        "use the white roll."), terminal_size)
+                    )
+                    self.display_board(other_p)
+                    self.display_white_dice()
+                    self.white_choice_offturn(other_p, p)
+                    time.sleep(0.5)
+
+                    # Possible game end point
+                    state = other_p.board.get_state()
+                    if state != BoardState.CONTINUE:
+                        break
+
+                # Possible game end point
+                if state != BoardState.CONTINUE:
+                    break
+
+                # Let this player use roll
+                clear_terminal()
+                print(ansi_center(
+                    (f"{bold(p.name)}, you may now decide how "
+                    "you will use your roll."), terminal_size)
+                )
+                time.sleep(0.5)
+                self.display_board(p)
+                self.display_dice()
+                pass_white = self.white_choice_turn(p)
+                self.display_board(p) # Update board
+                self.display_dice()
+                pass_color = self.color_choice_turn(p)
+                if pass_white and pass_color: self.penalize(p)
+
+                # Display updated board
+                self.display_board(p)
+                time.sleep(1)
+
+                # Possible game end point
+                state = p.board.get_state()
+                if state != BoardState.CONTINUE:
+                    break
+
+                input("Press enter to continue.".center(terminal_size))
+            
+            # Possible game end point
+            if state != BoardState.CONTINUE:
+                break
+            
+        # Show final boards
+        self.display_boards()
+        # Show final scores
+        self.display_podium()
+    
+
 
 if __name__ == "__main__":
-    game = QwixxTerm(["stick", "grass", "moss"])
+    game = QwixxTerm(["stick", "grass"])
     game.play_game()

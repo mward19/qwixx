@@ -37,23 +37,39 @@ class QwixxGame(ABC):
         pass
 
     @abstractmethod
-    def white_choice(self, player):
+    def white_choice_offturn(self, this_player, turn_player):
         """
         Displays the white die options for `player`.
         Allows them to choose which option they will take.
+        Args:
+            player (Player): The player for whom options will be shown
         Returns:
-            (bool) If the choice was successful
+            (bool) If a square was marked (false if pass or penalty)
         """
         pass
 
     @abstractmethod
-    def color_choice(self, player):
+    def white_choice_turn(self, player):
+        """
+        Displays the white die options for `player`.
+        Allows them to choose which option they will take.
+        Args:
+            player (Player): The player for whom options will be shown
+        Returns:
+            (bool) If a square was marked (false if pass or penalty)
+        """
+        pass
+
+    @abstractmethod
+    def color_choice_turn(self, player):
         """
         Displays the colored die options for `player`.
         Allows them to choose which option they will take.
         If no option is chosen, invokes a penalty on the player.
+        Args:
+            player (Player): The player for whom options will be shown
         Returns:
-            (bool) If the choice was successful
+            (bool) If a square was marked (false if pass or penalty)
         """
         pass
 
@@ -64,7 +80,7 @@ class QwixxGame(ABC):
         Allows them to choose which option(s) they will take.
         If no option is chosen, invokes a penalty on the player.
         Returns:
-            (bool) If the choice was successful
+            (bool) If a penalty was taken
         """
         pass
 
@@ -87,9 +103,14 @@ class QwixxGame(ABC):
         if idx == None:
             idx = player_order.index(player)
         begin = (idx + 1) % N
-        return player_order[begin:] + player_order[:idx]
-        
+        first_set =  player_order[begin:] if begin != 0 else []
+        second_set = player_order[:idx]
+        return first_set + second_set
+    
+    def penalize(self, player):
+        player.penalize()
 
+    @abstractmethod
     def play_game(self, player_order=None):
         """
         Begins and manages a Qwixx game.
@@ -97,39 +118,8 @@ class QwixxGame(ABC):
         Args:
             player_order (list of Players): The order of the players, as a list of players.
         """
-        self.display_intro()
+        pass
 
-        # If no player_order is provided, use a random order
-        if player_order == None:
-            player_order = random.sample(self.players, len(self.players))
-        
-        self.display_player_order(player_order)
-
-        # TODO: implement mutiplayer locking with boardstates
-        # Begin turns
-        for p_index, p in enumerate(player_order):
-            self.display_board(p)
-            self.roll_dice()
-            self.display_dice()
-            # Let this player see the roll they made
-            self.display_all_options(p)
-
-            # Let other players use white roll
-            other_players = self.get_other_players(player_order, p, p_index)
-            for other_p in other_players:
-                self.display_board(other_p)
-                self.display_white_dice()
-                self.white_choice(other_p)
-            # Let this player use roll
-            self.all_choice(p)
-            # Display updated board
-            self.display_board(p)
-        
-        # Show final boards
-        self.display_boards()
-        # Show final scores
-        self.display_podium()
-    
     @abstractmethod
     def display_board(self, player):
         """
