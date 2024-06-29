@@ -31,9 +31,14 @@ class QwixxGame(ABC):
         """
         pass
     
+    @abstractmethod
     def roll_dice(self, player=None):
+        """
+        Display and roll the dice.
+        """
         pass
 
+    @abstractmethod
     def white_choice(self, player):
         """
         Displays the white die options for `player`.
@@ -43,6 +48,7 @@ class QwixxGame(ABC):
         """
         pass
 
+    @abstractmethod
     def colored_choice(self, player):
         """
         Displays the colored die options for `player`.
@@ -53,6 +59,7 @@ class QwixxGame(ABC):
         """
         pass
 
+    @abstractmethod
     def all_choice(self, player):
         """
         Displays all dice options for `player`, white first, then colored.
@@ -60,6 +67,13 @@ class QwixxGame(ABC):
         If no option is chosen, invokes a penalty on the player.
         Returns:
             (bool) If the choice was successful
+        """
+        pass
+
+    @abstractmethod
+    def display_all_options(self, player):
+        """
+        Displays all dice options for `player`, white first, then colored. Used on a player's turn, after a dice roll, but before other players have decided to use the white roll.
         """
         pass
 
@@ -76,6 +90,8 @@ class QwixxGame(ABC):
             idx = player_order.index(player)
         begin = (idx + 1) % N
         return player_order[begin:idx] # Does not include this player
+    
+        #TODO: test cases
 
     def play_game(self, player_order=None):
         """
@@ -90,15 +106,25 @@ class QwixxGame(ABC):
         
         self.display_intro()
         # Begin turns
-        for player_index, player in enumerate(player_order):
-            self.display_board(player)
-            self.roll_dice(player)
-            self.display_all_options(player)
+        for p_index, p in enumerate(player_order):
+            self.display_board(p)
+            self.roll_dice(p)
+            # Let this player see the roll they made
+            self.display_all_options(p)
 
-            for others in [p for p in player_order ]
+            # Let other players use white roll
+            for other_p in self.get_other_players(player_order, p, p_index):
+                self.white_choice(other_p)
+            # Let this player use roll
+            self.all_choice(p)
+            # Display updated board
+            self.display_board(p)
         
-
-
+        # Show final boards
+        self.display_boards()
+        # Show final scores
+        self.display_podium()
+    
     @abstractmethod
     def display_board(self, player):
         """
@@ -110,28 +136,6 @@ class QwixxGame(ABC):
     def display_boards(self):
         """
         Displays all players' boards, with equal priority.
-        """
-        pass
-
-    @abstractmethod
-    def display_white_options(self, player):
-        """
-        Displays the players options with the white dice result. If desired, other player's boards may be displayed, but they would be displayed secondarily.
-        """
-        pass
-
-    @abstractmethod
-    def display_colored_options(self, player):
-        """
-        Displays the players options with the colored dice result. If desired, other player's boards may be displayed, but they would be displayed secondarily.
-        """
-        pass
-
-
-    @abstractmethod
-    def display_all_options(self, player):
-        """
-        Displays the players' options with the all dice results. If desired, other player's boards may be displayed, but they would be displayed secondarily. 
         """
         pass
     

@@ -37,15 +37,6 @@ class Player:
         print(color_center(f"~~~ {str(self)} ~~~", terminal_size))
         # Display the board.
         print(self.board.term_rep())
-
-        ## Let the player roll the dice. Simulate dice rolling.
-        ## TODO: Not possible without root privileges
-        #while not (keyboard.is_pressed('space') or keyboard.is_pressed('enter')):
-        #    dice.roll()
-        #    print(dice.term_rep())
-        #    time.sleep(0.01)
-        #    print('\r') # Carriage return to print again
-        ## Roll once more
         dice.roll()
         print()
         print(dice.term_rep())
