@@ -106,19 +106,34 @@ class Board:
         
         return color_cond and value_cond and placement_cond
     
+    # TODO: remove (uses A1)
+    #def placements(self, option):
+    #    """
+    #    Checks where `option` (tuple: (Color, value)) can be played on the board.
+    #    Returns a list of 'A1' coordinate strings (potentially empty).
+    #    """
+    #    color, value = option
+    #    placements = []
+    #    for row_index, row in enumerate(self.rows):
+    #        for col_index, square in enumerate(row):
+    #            if self.valid_place(option, row_index, col_index):
+    #                placements.append(coord_to_A1(row_index, col_index))
+    #    return placements
+    
     def placements(self, option):
         """
         Checks where `option` (tuple: (Color, value)) can be played on the board.
-        Returns a list of 'A1' coordinate strings (potentially empty).
+        Returns a list of coordinate tuples (row, column).
         """
         color, value = option
         placements = []
         for row_index, row in enumerate(self.rows):
             for col_index, square in enumerate(row):
                 if self.valid_place(option, row_index, col_index):
-                    placements.append(coord_to_A1(row_index, col_index))
+                    placements.append((row_index, col_index))
         return placements
     
+
     def score(self):
         score = 0
         # Score rows

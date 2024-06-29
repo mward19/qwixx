@@ -1,11 +1,5 @@
-## Highest priority
-Implement proper turn structure (everyone can use the white roll)
+# Turns
+- Turn validation (penalties and passing)
+- lowercase and uppercase for A1 notation (a1)
 
-
-# Turn structure
-- Player 1 rolls
-- Display/highlight possibilities, separated by white options and color options
-- Let other players decide if/where they want the white roll
-- Let Player 1 decide if/where they want the white roll
-- Let Player 1 decide if/where they want the color roll
-- End turn, display board
+All other #TODO comments in the code

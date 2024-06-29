@@ -23,13 +23,32 @@ class Player:
     def penalize(self):
         return self.board.add_penalty()
     
+    def valid_white_options(self, dice):
+        # TODO: make this ordered, thereby removing need for set list conversion
+        """ Uses dice's (DiceSet) last roll to calculate all possible white moves. """
+        options = dice.white_options()
+        valid_options = []
+        for option in options:
+            valid_options += self.board.placements(option)
+        return list(set(valid_options))
+    
+    def valid_color_options(self, dice):
+        # TODO: make this ordered, thereby removing need for set list conversion
+        """ Uses dice's (DiceSet) last roll to calculate all possible color moves. """
+        options = dice.color_options()
+        valid_options = []
+        for option in options:
+            valid_options += self.board.placements(option)
+        return list(set(valid_options)) 
+
     def valid_options(self, dice):
+        #TODO: REMOVE
         """ Uses dice's (DiceSet) last roll to calculate all possible moves. """
         all_options = dice.options()
         valid_options = []
         for option in all_options:
-            valid_options.append(self.board.placements(option))
-        return valid_options
+            valid_options += self.board.placements(option)
+        return list(set(valid_options))
     
     def terminal_turn(self, dice):
         """ Take a turn. """

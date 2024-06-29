@@ -12,30 +12,28 @@ class QwixxGame(ABC):
     An implementation would run the game in a terminal, browser, or app.
     """
     @abstractmethod
-    def __init__(self, players, diceset):
+    def __init__(self, players, dice):
         self.players = players
-        self.dice = DiceSet()
+        self.dice = dice
         self.N_players = len(self.players)
+    
+    @abstractmethod
+    def display_player_order(self, player_order):
+        pass
 
-    def player_turn(player):
+    @abstractmethod
+    def roll_dice(self):
         """
-        Allows a player (who must be in self.players) to take a turn in the game.
-        - The player rolls self.dice (self.dice_roll())
-        - His white and colored options are displayed
-        - Other players may decide if they would like to use the white roll (self.white_option())
-        - The player may decide if they would like to use the white roll
-        - The player may decide if they would like to use the colored roll
-
-        Returns:
-
+        Roll the dice.
         """
         pass
     
     @abstractmethod
-    def roll_dice(self, player=None):
-        """
-        Display and roll the dice.
-        """
+    def display_dice(self):
+        pass
+    
+    @abstractmethod
+    def display_white_dice(self):
         pass
 
     @abstractmethod
@@ -49,7 +47,7 @@ class QwixxGame(ABC):
         pass
 
     @abstractmethod
-    def colored_choice(self, player):
+    def color_choice(self, player):
         """
         Displays the colored die options for `player`.
         Allows them to choose which option they will take.
@@ -89,9 +87,8 @@ class QwixxGame(ABC):
         if idx == None:
             idx = player_order.index(player)
         begin = (idx + 1) % N
-        return player_order[begin:idx] # Does not include this player
-    
-        #TODO: test cases
+        return player_order[begin:] + player_order[:idx]
+        
 
     def play_game(self, player_order=None):
         """
@@ -100,20 +97,28 @@ class QwixxGame(ABC):
         Args:
             player_order (list of Players): The order of the players, as a list of players.
         """
+        self.display_intro()
+
         # If no player_order is provided, use a random order
         if player_order == None:
             player_order = random.sample(self.players, len(self.players))
         
-        self.display_intro()
+        self.display_player_order(player_order)
+
+        # TODO: implement mutiplayer locking with boardstates
         # Begin turns
         for p_index, p in enumerate(player_order):
             self.display_board(p)
-            self.roll_dice(p)
+            self.roll_dice()
+            self.display_dice()
             # Let this player see the roll they made
             self.display_all_options(p)
 
             # Let other players use white roll
-            for other_p in self.get_other_players(player_order, p, p_index):
+            other_players = self.get_other_players(player_order, p, p_index)
+            for other_p in other_players:
+                self.display_board(other_p)
+                self.display_white_dice()
                 self.white_choice(other_p)
             # Let this player use roll
             self.all_choice(p)
