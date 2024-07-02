@@ -25,8 +25,8 @@ def test_valid_place():
     assert not board.valid_place((Color.RED, 9), 3, 6)
     assert not board.valid_place((Color.BLUE, 5), 3, 6)
 
-    assert not board.valid_place((Color.GREEN, 8), 2, 8)
-    assert board.valid_place((Color.YELLOW, 8), 1, 8)
+    assert not board.valid_place((Color.GREEN, 8), 2, 6)
+    assert board.valid_place((Color.YELLOW, 8), 1, 6)
 
 def test_mark():
     lc = {Color.GREEN} # locked colors

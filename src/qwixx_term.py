@@ -22,9 +22,10 @@ class QwixxTerm(QwixxGame):
         """
         Initializes the Qwixx game using the players' names, default boards, and default dice.
         """
-        players = [Player(name, Board()) for name in names]
+        lc = set()
+        players = [Player(name, Board(lc)) for name in names]
         dice = DiceSet()
-        super().__init__(players, dice)
+        super().__init__(players, dice, lc)
     
     def display_player_order(self, player_order):
         text = "The player order will be:"
@@ -43,7 +44,8 @@ class QwixxTerm(QwixxGame):
         terminal_size = shutil.get_terminal_size().columns
         output = ""
         for d in self.dice:
-            output += self.show_die(d) + " "
+            if d.color not in self.locked_colors:
+                output += self.show_die(d) + " "
         print(color_center(output, terminal_size))
     
     def display_white_dice(self):
@@ -52,7 +54,7 @@ class QwixxTerm(QwixxGame):
         for d in self.dice:
             if d.color == Color.NO_COLOR:
                 output += self.show_die(d) + " "
-            else:
+            elif d.color not in self.locked_colors:
                 output += strikethrough(self.show_die(d)) + " "
         print(color_center(output, terminal_size))
     
@@ -163,6 +165,11 @@ class QwixxTerm(QwixxGame):
         player.penalize()
         self.display_penalize(player)
 
+    def update_lock(self):
+        for p in self.players:
+            p.board.update_lock()
+        return None
+
     def display_penalize(self, player):
         terminal_size = shutil.get_terminal_size().columns
         print(f"{player.name} took a penalty!".center(terminal_size))
@@ -229,12 +236,11 @@ class QwixxTerm(QwixxGame):
         """
         Displays a podium with the players ranked by their score. Intended for use at the conclusion of the game.
         """
+        terminal_size = shutil.get_terminal_size().columns
         # Display final scores. Sort scores in reverse order (1st is first)
-        scored = [(p, p.board.score()) for p in self.players].sort(
-            key=lambda x: x[1],
-            reverse=True
-        )
-        print("~~~ PODIUM ~~~")
+        scored = [(p, p.board.score()) for p in self.players]
+        scored.sort(key=lambda x: x[1], reverse=True)
+        print(ansi_center("~~~ PODIUM ~~~", terminal_size))
         # TODO: make ordinals more robust for support of larger arbitrary numbers
         ordinals = {
             1: "1st", 
@@ -247,11 +253,12 @@ class QwixxTerm(QwixxGame):
             8: "8th"
         }
         place = 1
-        print(f"Congratulations, {scored[0][0].name}!")
-        for (player, score) in enumerate(scored):
-            score_statement = (f"{ordinals[place+1]} place:"
-                               f"{player.name} with {score} point(s).")
+        print(ansi_center(f"Congratulations, {bold(scored[0][0].name)}!", terminal_size))
+        for (player, score) in scored:
+            score_statement = (f"{ordinals[place]} place: "
+                               f"{bold(player.name)} with a score of {bold(score)}.")
             print(score_statement)
+            place += 1
 
     def display_intro(self):
         """
@@ -270,6 +277,9 @@ class QwixxTerm(QwixxGame):
         )
 
     def play_game(self, player_order=None):
+        # Update locking
+        self.update_lock()
+
         terminal_size = shutil.get_terminal_size().columns
         self.display_intro()
         time.sleep(1)
@@ -288,6 +298,7 @@ class QwixxTerm(QwixxGame):
         while True:
             for p_index, p in enumerate(player_order):
                 clear_terminal()
+                terminal_size = shutil.get_terminal_size().columns
                 print(ansi_center(f"{bold(p.name)}, it is your turn.", terminal_size))
                 time.sleep(0.5)
                 self.display_board(p)
@@ -338,6 +349,9 @@ class QwixxTerm(QwixxGame):
                 pass_color = self.color_choice_turn(p)
                 if pass_white and pass_color: self.penalize(p)
 
+                # Update locking
+                self.update_lock()
+
                 # Display updated board
                 self.display_board(p)
                 time.sleep(1)
@@ -362,4 +376,32 @@ class QwixxTerm(QwixxGame):
 
 if __name__ == "__main__":
     game = QwixxTerm(["stick", "grass"])
+
+    ## Almost finished game
+    #game.players[0].board.mark(0, 0)
+    #game.players[0].board.mark(0, 1)
+    #game.players[0].board.mark(0, 2)
+    #game.players[0].board.mark(0, 3)
+    #game.players[0].board.mark(0, 4)
+    #game.players[0].board.mark(0, 5)
+    #game.players[0].board.mark(0, 10)
+    #
+    #game.players[0].board.mark(2, 0)
+    #game.players[0].board.mark(2, 1)
+    #game.players[0].board.mark(2, 2)
+    #game.players[0].board.mark(2, 3)
+    #game.players[0].board.mark(2, 4)
+    #
+    #game.players[0].board.mark(3, 0)
+    #game.players[0].board.mark(3, 1)
+    #game.players[0].board.mark(3, 2)
+    #game.players[0].board.mark(3, 3)
+    #game.players[0].board.mark(3, 4)
+    #
+    #game.players[0].board.mark(1, 0)
+    #game.players[0].board.mark(1, 1)
+    #game.players[0].board.mark(1, 2)
+    #game.players[0].board.mark(1, 3)
+    #game.players[0].board.mark(1, 4)
+
     game.play_game()

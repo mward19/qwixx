@@ -110,7 +110,7 @@ class Board:
         # Must be of a compatible color 
         color_cond     = (Color.compatible(color, square.color))
         # Must not be of a locked color
-        not_locked     = color in self.locked_colors
+        not_locked     = (color not in self.locked_colors)
         # Must share square value
         value_cond     = (value == square.value)
         # No squares marked here or to the right
@@ -158,15 +158,27 @@ class Board:
 
     def get_state(self):
         # Count locked rows
-        locked_rows = sum([True if row.locked else False for row in self.rows])
+        colors = [row[-1].color for row in self.rows]
+        N_locked = sum([(color in self.locked_colors) for color in colors])
 
-        if locked_rows > self.MAX_LOCK:             return BoardState.LOCKED
+        if N_locked > self.MAX_LOCK:             return BoardState.LOCKED
         elif self.penalties > self.MAX_PENALTIES:   return BoardState.PENALTIES
         else:                                       return BoardState.CONTINUE
     
     def __getitem__(self, index):
         return self.rows[index]
+    
+    def update_lock(self):
+        for row in self.rows:
+            locked_color = row.what_is_locked()
+            if locked_color: self.color_lock(locked_color)
+        return self.locked_colors
 
+    def color_lock(self, color):
+        self.locked_colors.add(color)
+    
 if __name__ == "__main__":
-    board = Board()
-    print(board.term_rep())
+    lc = {Color.GREEN} # locked colors
+    board = Board(lc)
+    board.mark(0, 7)
+    print(board.valid_place((Color.BLUE, 5), 3, 7))

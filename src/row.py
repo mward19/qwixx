@@ -35,8 +35,15 @@ class Row:
 
         return self.scoring[marks]
     
-    def lock(self, color):
+    def color_lock(self, color):
         self.locked_colors.add(color)
+
+    def what_is_locked(self):
+        """ Returns the color that is locked by this row, if any. """
+        if self.squares[-1].marked:
+            return self.squares[-1].color
+        else:
+            return None
     
     def mark(self, index):
         """ Implements marking rules. If successful, returns True. """

@@ -12,10 +12,14 @@ class QwixxGame(ABC):
     An implementation would run the game in a terminal, browser, or app.
     """
     @abstractmethod
-    def __init__(self, players, dice):
+    def __init__(self, players, dice, lc):
         self.players = players
         self.dice = dice
+        self.locked_colors = lc
         self.N_players = len(self.players)
+
+    def lock(self, color):
+        self.locked_colors.add(color)
     
     @abstractmethod
     def display_player_order(self, player_order):

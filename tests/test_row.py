@@ -19,4 +19,4 @@ def test_score():
     row1[0].mark()
     row1[1].mark()
 
-    assert row1.score == 3
+    assert row1.score() == 3
