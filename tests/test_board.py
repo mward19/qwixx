@@ -3,12 +3,14 @@ from color import Color
 from board import Board
 
 def test_indexing():
-    board = Board()
+    lc = {} # locked colors
+    board = Board(lc)
     assert board[3][7].value == 5
     assert board[3][7].color == Color.BLUE
 
 def test_valid_place():
-    board = Board()
+    lc = {Color.GREEN} # locked colors
+    board = Board(lc)
     board.mark(0, 7)
 
     assert not board.valid_place((Color.RED, 9), 0, 7)
@@ -23,8 +25,12 @@ def test_valid_place():
     assert not board.valid_place((Color.RED, 9), 3, 6)
     assert not board.valid_place((Color.BLUE, 5), 3, 6)
 
+    assert not board.valid_place((Color.GREEN, 8), 2, 8)
+    assert board.valid_place((Color.YELLOW, 8), 1, 8)
+
 def test_mark():
-    board = Board()
+    lc = {Color.GREEN} # locked colors
+    board = Board(lc)
     assert board.mark(0, 7)  == True # 1 mark on red row
     assert board[0][7].marked
 
@@ -42,8 +48,15 @@ def test_mark():
     assert board.mark(1, 9)  == True
     assert board.mark(1, 10) == True # Lock
 
+    # test locking
+    assert board.mark(2, 1) == False
+    assert board.mark(2, 4) == False
+    assert board.mark(3, 1) == True
+    assert board.mark(3, 4) == True
+
 def test_score():
-    board = Board()
+    lc = {Color.GREEN} # locked colors
+    board = Board(lc)
     assert board.score() == 0
 
     board.add_penalty()

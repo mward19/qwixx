@@ -1,6 +1,6 @@
 import pytest
 from qwixx_game import QwixxGame
-from quixx_term import QwixxTerm
+from qwixx_term import QwixxTerm
 
 def test_get_other_players():
     names = ["one", "two", "three"]

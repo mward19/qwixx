@@ -20,13 +20,18 @@ class Board:
     Attributes:
     
     """
-    def __init__(self):
+    def __init__(self, locked_colors):
         """ Default Qwixx layout. """
+        lc = locked_colors
         # Generate rows of Squares
-        red_row =    Row([Square(Color.RED,    dice_val) for dice_val in range(2, 13)])
-        yellow_row = Row([Square(Color.YELLOW, dice_val) for dice_val in range(2, 13)])
-        green_row =  Row([Square(Color.GREEN,  dice_val) for dice_val in range(12, 1, -1)])
-        blue_row =   Row([Square(Color.BLUE,   dice_val) for dice_val in range(12, 1, -1)])
+        red_row =    Row([Square(Color.RED,    dice_val) 
+                          for dice_val in range(2, 13)], lc)
+        yellow_row = Row([Square(Color.YELLOW, dice_val) 
+                          for dice_val in range(2, 13)], lc)
+        green_row =  Row([Square(Color.GREEN,  dice_val) 
+                          for dice_val in range(12, 1, -1)], lc)
+        blue_row =   Row([Square(Color.BLUE,   dice_val) 
+                          for dice_val in range(12, 1, -1)], lc)
 
         # Stack rows, save as self.rows
         self.rows = [red_row, yellow_row, green_row, blue_row]
@@ -35,6 +40,8 @@ class Board:
 
         self.MAX_PENALTIES = 3
         self.MAX_LOCK = 1
+
+        self.locked_colors = locked_colors
     
     
     def term_rep(self, sq_width=6):
@@ -102,12 +109,14 @@ class Board:
 
         # Must be of a compatible color 
         color_cond     = (Color.compatible(color, square.color))
+        # Must not be of a locked color
+        not_locked     = color in self.locked_colors
         # Must share square value
         value_cond     = (value == square.value)
-        # No squares marked to the here or to the right
+        # No squares marked here or to the right
         placement_cond = (True not in [sq.marked for sq in row[sq_index:]])
         
-        return color_cond and value_cond and placement_cond
+        return color_cond and not_locked and value_cond and placement_cond
     
     # TODO: remove (uses A1)
     #def placements(self, option):

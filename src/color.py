@@ -6,6 +6,7 @@ class Color(Enum):
     GREEN = 'G'
     BLUE = 'B'
     NO_COLOR = 'W'
+    locked = False
 
     def __str__(self):
         return self.value

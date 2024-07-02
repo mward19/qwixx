@@ -9,16 +9,16 @@ class Row:
     
     Attributes:
         squares (list of Squares): A list of Qwixx board squares
-        locked (bool): If true, the row is locked
         scoring (dict: int -> int): TODO
+        locked_colors (set: Color)
         TODO
     """
-    def __init__(self, squares):
+    def __init__(self, squares, locked_colors):
         self.squares = squares
-        self.locked = False
         # Default scoring metric
         self.scoring = Row.default_metric(len(self.squares))
         self.lock_min = 5
+        self.locked_colors = locked_colors
     
     def default_metric(n_squares):
         scoring = dict()
@@ -35,11 +35,14 @@ class Row:
 
         return self.scoring[marks]
     
+    def lock(self, color):
+        self.locked_colors.add(color)
+    
     def mark(self, index):
         """ Implements marking rules. If successful, returns True. """
         marks = [sq.marked for sq in self.squares]
-        # Do not allow marking on a locked row
-        if self.locked:
+        # Do not allow marking a locked color
+        if self.squares[index].color in self.locked_colors:
             return False
         # Do not allow marking on or to the left of other marks
         if True in marks[index:]:
@@ -61,8 +64,6 @@ class Row:
     def __getitem__(self, index):
         return self.squares[index]
     
-    def lock(self):
-        self.locked = True
 
     def term_rep(self, sq_width=6):
         """
