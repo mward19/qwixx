@@ -40,53 +40,6 @@ class QwixxGame(ABC):
     def display_white_dice(self):
         pass
 
-    @abstractmethod
-    def white_choice_offturn(self, this_player, turn_player):
-        """
-        Displays the white die options for `player`.
-        Allows them to choose which option they will take.
-        Args:
-            player (Player): The player for whom options will be shown
-        Returns:
-            (bool) If a square was marked (false if pass or penalty)
-        """
-        pass
-
-    @abstractmethod
-    def white_choice_turn(self, player):
-        """
-        Displays the white die options for `player`.
-        Allows them to choose which option they will take.
-        Args:
-            player (Player): The player for whom options will be shown
-        Returns:
-            (bool) If a square was marked (false if pass or penalty)
-        """
-        pass
-
-    @abstractmethod
-    def color_choice_turn(self, player):
-        """
-        Displays the colored die options for `player`.
-        Allows them to choose which option they will take.
-        If no option is chosen, invokes a penalty on the player.
-        Args:
-            player (Player): The player for whom options will be shown
-        Returns:
-            (bool) If a square was marked (false if pass or penalty)
-        """
-        pass
-
-    @abstractmethod
-    def all_choice(self, player):
-        """
-        Displays all dice options for `player`, white first, then colored.
-        Allows them to choose which option(s) they will take.
-        If no option is chosen, invokes a penalty on the player.
-        Returns:
-            (bool) If a penalty was taken
-        """
-        pass
 
     @abstractmethod
     def display_all_options(self, player):

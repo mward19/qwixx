@@ -5,6 +5,7 @@ from board import BoardState
 import time
 import shutil
 from utils import A1_to_coord
+from utils import valid_A1
 from utils import color_center
 from utils import clear_terminal
 
@@ -22,33 +23,20 @@ class Player:
     
     def penalize(self):
         return self.board.add_penalty()
-    
-    def valid_white_options(self, dice):
-        # TODO: make this ordered, thereby removing need for set list conversion
-        """ Uses dice's (DiceSet) last roll to calculate all possible white moves. """
-        options = dice.white_options()
-        valid_options = []
-        for option in options:
-            valid_options += self.board.placements(option)
-        return list(set(valid_options))
-    
-    def valid_color_options(self, dice):
-        # TODO: make this ordered, thereby removing need for set list conversion
-        """ Uses dice's (DiceSet) last roll to calculate all possible color moves. """
-        options = dice.color_options()
-        valid_options = []
-        for option in options:
-            valid_options += self.board.placements(option)
-        return list(set(valid_options)) 
 
-    def valid_options(self, dice):
-        #TODO: REMOVE
+    # TODO: misleading function name. Or maybe the other one is misleading?
+    def valid_options(self, dice, white_turn=True):
         """ Uses dice's (DiceSet) last roll to calculate all possible moves. """
-        all_options = dice.options()
+        options = dice.white_options() if white_turn else dice.color_options()
         valid_options = []
-        for option in all_options:
-            valid_options += self.board.placements(option)
+        for option in options:
+            valid_options += self.board.placements(option, white_turn)
         return list(set(valid_options))
+    
+    def valid_A1(self, A1_coord):
+        n_rows = self.board.n_rows()
+        n_cols = self.board.n_cols()
+        return valid_A1(A1_coord, n_rows, n_cols)
     
     def terminal_turn(self, dice):
         """ Take a turn. """

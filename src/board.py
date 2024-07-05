@@ -16,9 +16,6 @@ class BoardState(Enum):
 class Board:
     """
     Represents a Qwixx board for one player. Contains many Squares.
-
-    Attributes:
-    
     """
     def __init__(self, locked_colors):
         """ Default Qwixx layout. """
@@ -91,15 +88,16 @@ class Board:
     def __iter__(self):
         return self.rows
     
+    def n_rows(self):
+        return len(self.rows)
+
+    def n_cols(self):
+        return max([len(row) for row in self.rows])
+    
     def mark(self, row_index, col_index):
         return self.rows[row_index].mark(col_index)
     
-    def A1_mark(self, A1_coord):
-        if not valid_A1(A1_coord, len(self.rows), 1+max([len(row) for row in self.rows])): return False
-        coord = A1_to_coord(A1_coord)
-        return self.mark(*coord)
-    
-    def valid_place(self, option, row_index, sq_index):
+    def valid(self, option, row_index, sq_index, white_turn=True):
         """
         Checks if `option` (tuple: (Color, value)) can be played on a given square
         """
@@ -107,10 +105,14 @@ class Board:
         square = row[sq_index]
         color, value = option
 
+        # If white turn, must be white dice
+        if white_turn and color != Color.NO_COLOR: return False
+        # If color turn, must be color dice
+        if (not white_turn) and (color == Color.NO_COLOR): return False
         # Must be of a compatible color 
         color_cond     = (Color.compatible(color, square.color))
         # Must not be of a locked color
-        not_locked     = (color not in self.locked_colors)
+        not_locked     = (square.color not in self.locked_colors)
         # Must share square value
         value_cond     = (value == square.value)
         # No squares marked here or to the right
@@ -118,21 +120,7 @@ class Board:
         
         return color_cond and not_locked and value_cond and placement_cond
     
-    # TODO: remove (uses A1)
-    #def placements(self, option):
-    #    """
-    #    Checks where `option` (tuple: (Color, value)) can be played on the board.
-    #    Returns a list of 'A1' coordinate strings (potentially empty).
-    #    """
-    #    color, value = option
-    #    placements = []
-    #    for row_index, row in enumerate(self.rows):
-    #        for col_index, square in enumerate(row):
-    #            if self.valid_place(option, row_index, col_index):
-    #                placements.append(coord_to_A1(row_index, col_index))
-    #    return placements
-    
-    def placements(self, option):
+    def placements(self, option, white_turn=True):
         """
         Checks where `option` (tuple: (Color, value)) can be played on the board.
         Returns a list of coordinate tuples (row, column).
@@ -141,7 +129,7 @@ class Board:
         placements = []
         for row_index, row in enumerate(self.rows):
             for col_index, square in enumerate(row):
-                if self.valid_place(option, row_index, col_index):
+                if self.valid(option, row_index, col_index, white_turn):
                     placements.append((row_index, col_index))
         return placements
     

@@ -1,10 +1,8 @@
 # End of Game
-Make one player's lock lock all other players on that row
+Replace A1_mark, color/white turn validation
 
 # Tests
 More tests for quixx_term
 
 # Turns
-Reimplement turn validation
-
 All other #TODO comments in the code
