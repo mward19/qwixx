@@ -9,6 +9,14 @@ import shutil
 from utils import ansi_center
 
 class BoardState(Enum):
+    """
+    Enum representing the possible states of a Qwixx board.
+    
+    Attributes:
+        CONTINUE (int): Board state indicating the game can continue.
+        LOCKED (int): Board state indicating that too many rows are locked.
+        PENALTIES (int): Board state indicating that penalties have exceeded the maximum allowed.
+    """
     CONTINUE = 0
     LOCKED = 1
     PENALTIES = 2
@@ -16,9 +24,22 @@ class BoardState(Enum):
 class Board:
     """
     Represents a Qwixx board for one player. Contains many Squares.
+    
+    Attributes:
+        rows (list of Row): A list of rows, each containing squares of different colors.
+        penalty_val (int): Value deducted per penalty.
+        penalties (int): Number of penalties incurred.
+        MAX_PENALTIES (int): Maximum number of penalties allowed.
+        MAX_LOCK (int): Maximum number of locked rows allowed.
+        locked_colors (set of Color): Colors that are locked for marking on the board.
     """
     def __init__(self, locked_colors):
-        """ Default Qwixx layout. """
+        """
+        Initializes a Qwixx board with default rows and settings.
+
+        Parameters:
+        locked_colors (set of Color): Colors that are initially locked on the board.
+        """
         lc = locked_colors
         # Generate rows of Squares
         red_row =    Row([Square(Color.RED,    dice_val) 
@@ -43,7 +64,13 @@ class Board:
     
     def term_rep(self, sq_width=6):
         """
-        Yields a colored representation for terminals using ANSI escape sequences.
+        Generates a colored representation of the board for terminals using ANSI escape sequences.
+
+        Parameters:
+        sq_width (int): Width of each square representation. Default is 6.
+
+        Returns:
+        str: A string representing the board's layout and current state.
         """
         terminal_size = shutil.get_terminal_size().columns
         max_row_len = max([len(row) for row in self.rows])
@@ -76,7 +103,7 @@ class Board:
         Adds a penalty to the counter.
 
         Returns:
-            bool: if MAX_PENALTIES has been surpassed
+            bool: True if the maximum number of penalties has been surpassed, False otherwise.
         """
         self.penalties += 1
         return self.penalties > self.MAX_PENALTIES
@@ -86,20 +113,57 @@ class Board:
         return 0 
     
     def __iter__(self):
-        return self.rows
+        """
+        Returns an iterator over the rows of the board.
+
+        Returns:
+        iterator: An iterator over the rows of the board.
+        """
+        return iter(self.rows)
     
     def n_rows(self):
+        """
+        Returns the number of rows in the board.
+
+        Returns:
+        int: The number of rows in the board.
+        """
         return len(self.rows)
 
     def n_cols(self):
+        """
+        Returns the maximum number of squares in any row of the board.
+
+        Returns:
+        int: The maximum number of squares in any row of the board.
+        """
         return max([len(row) for row in self.rows])
     
     def mark(self, row_index, col_index):
+        """
+        Marks a square at a specific row and column index on the board.
+
+        Parameters:
+        row_index (int): Index of the row containing the square to mark.
+        col_index (int): Index of the square to mark within the row.
+
+        Returns:
+        bool: True if marking was successful, False otherwise.
+        """
         return self.rows[row_index].mark(col_index)
     
     def valid(self, option, row_index, sq_index, white_turn=True):
         """
-        Checks if `option` (tuple: (Color, value)) can be played on a given square
+        Checks if a given option (Color, value) can be played on a specific square on the board.
+
+        Parameters:
+        option (tuple): A tuple containing Color and value to check.
+        row_index (int): Index of the row containing the square to check.
+        sq_index (int): Index of the square within the row to check.
+        white_turn (bool): True if it's a white dice turn, False otherwise. Default is True.
+
+        Returns:
+        bool: True if the option can be played on the square, False otherwise.
         """
         row = self.rows[row_index]
         square = row[sq_index]
@@ -122,8 +186,14 @@ class Board:
     
     def placements(self, option, white_turn=True):
         """
-        Checks where `option` (tuple: (Color, value)) can be played on the board.
-        Returns a list of coordinate tuples (row, column).
+        Finds all valid placements for a given option (Color, value) on the board.
+
+        Parameters:
+        option (tuple): A tuple containing Color and value to check.
+        white_turn (bool): True if it's a white dice turn, False otherwise. Default is True.
+
+        Returns:
+        list of tuples: A list of coordinate tuples (row_index, col_index) where the option can be placed.
         """
         color, value = option
         placements = []
@@ -132,9 +202,14 @@ class Board:
                 if self.valid(option, row_index, col_index, white_turn):
                     placements.append((row_index, col_index))
         return placements
-    
 
     def score(self):
+        """
+        Calculates the current score of the board.
+
+        Returns:
+        int: The current score of the board.
+        """
         score = 0
         # Score rows
         for row in self.rows:
@@ -145,6 +220,12 @@ class Board:
         return score
 
     def get_state(self):
+        """
+        Determines the current state of the board based on locked rows and penalties.
+
+        Returns:
+        BoardState: The current state of the board (CONTINUE, LOCKED, or PENALTIES).
+        """
         # Count locked rows
         colors = [row[-1].color for row in self.rows]
         N_locked = sum([(color in self.locked_colors) for color in colors])
@@ -154,19 +235,35 @@ class Board:
         else:                                       return BoardState.CONTINUE
     
     def __getitem__(self, index):
+        """
+        Returns the row at the specified index.
+
+        Parameters:
+        index (int): Index of the row to retrieve.
+
+        Returns:
+        Row: The row at the specified index.
+        """
         return self.rows[index]
     
     def update_lock(self):
+        """
+        Updates the set of locked colors based on the current state of each row.
+
+        Returns:
+        set of Color: The updated set of locked colors.
+        """
         for row in self.rows:
             locked_color = row.what_is_locked()
             if locked_color: self.color_lock(locked_color)
         return self.locked_colors
 
     def color_lock(self, color):
+        """
+        Locks a color for marking on the board.
+
+        Parameters:
+        color (Color): The color to lock.
+        """
         self.locked_colors.add(color)
     
-if __name__ == "__main__":
-    lc = {Color.GREEN} # locked colors
-    board = Board(lc)
-    board.mark(0, 7)
-    print(board.valid_place((Color.BLUE, 5), 3, 7))
