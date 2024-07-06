@@ -3,7 +3,7 @@ import random
 from itertools import combinations
 from itertools import product
 import shutil
-from utils import color_center
+from utils import ansi_center
 
 class Die:
     """
@@ -79,7 +79,7 @@ class DiceSet:
         output = ""
         for d in self.dice:
             output += d.term_rep() + " "
-        return color_center(output, terminal_size)
+        return ansi_center(output, terminal_size)
         
     def roll(self):
         for die in self.dice: die.roll()
@@ -104,24 +104,6 @@ class DiceSet:
         tuples by combining sets of two dice.
         """
         play_options = []
-
-        # Get colored combinations
-        for (d_colored, d_white) in product(self.colored_dice, self.white_dice):
-            play_options.append((d_colored.color, d_colored + d_white))
-        
-        return play_options
-
-    def options(self):
-        # TODO: REMOVE
-        """ 
-        Using last roll, returns all play options as (Color, value)
-        tuples by combining sets of two dice.
-        """
-        play_options = []
-
-        # Get colorless combinations, usable by all players.
-        for (d1, d2) in combinations(self.white_dice, 2):
-            play_options.append((Color.NO_COLOR, d1+d2))
 
         # Get colored combinations
         for (d_colored, d_white) in product(self.colored_dice, self.white_dice):

@@ -6,7 +6,7 @@ from color import Color
 import random
 from qwixx_game import QwixxGame
 import shutil
-from utils import color_center
+from utils import ansi_center
 from utils import ansi_center
 from utils import strikethrough
 from utils import bold
@@ -48,7 +48,7 @@ class QwixxTerm(QwixxGame):
         for d in self.dice:
             if d.color not in self.locked_colors:
                 output += self.show_die(d) + " "
-        print(color_center(output, terminal_size))
+        print(ansi_center(output, terminal_size))
     
     def display_white_dice(self):
         terminal_size = shutil.get_terminal_size().columns
@@ -58,7 +58,7 @@ class QwixxTerm(QwixxGame):
                 output += self.show_die(d) + " "
             elif d.color not in self.locked_colors:
                 output += strikethrough(self.show_die(d)) + " "
-        print(color_center(output, terminal_size))
+        print(ansi_center(output, terminal_size))
     
     def show_die(self, die):
         return Color.color_text(die.color, ":" + str(die.last_roll) + ":")
@@ -81,7 +81,7 @@ class QwixxTerm(QwixxGame):
             (bool) If a square was marked (false if pass or penalty)
         """
         white_turn = True # Offturn is always white only.
-        options = this_player.valid_options(self.dice, white_turn)
+        options = this_player.valid_placements(self.dice, white_turn)
 
         # Let the player make a move using A1 notation
         valid_choice = False
@@ -110,7 +110,7 @@ class QwixxTerm(QwixxGame):
         Returns:
             (bool) If a square was marked (false if pass or penalty)
         """
-        options = this_player.valid_options(self.dice, white_turn)
+        options = this_player.valid_placements(self.dice, white_turn)
 
         # Let the player make a move using A1 notation
         valid_choice = False
@@ -176,14 +176,14 @@ class QwixxTerm(QwixxGame):
         lmargin = 3
 
         # Show player name
-        print(color_center(f"~~~ {str(player.name)} ~~~", terminal_size))
+        print(ansi_center(f"~~~ {str(player.name)} ~~~", terminal_size))
 
         text= ""
         # A header, with numeric column coordinates.
         text_row = ' ' * lmargin
         text_row += ''.join([str(column).center(sq_width)
                          for column in range(1, max_row_len+1)])
-        text_row = color_center(text_row, terminal_size)
+        text_row = ansi_center(text_row, terminal_size)
         text += text_row + "\n"
 
         # The rows of the board.
@@ -192,7 +192,7 @@ class QwixxTerm(QwixxGame):
             # Index rows with letters, calculated with ASCII codes
             text_row += chr(65 + row_index).rjust(lmargin) 
             text_row += row.term_rep(sq_width)
-            text_row = color_center(text_row, terminal_size)
+            text_row = ansi_center(text_row, terminal_size)
             text += text_row + "\n"
         
         # Penalties.
@@ -243,7 +243,7 @@ class QwixxTerm(QwixxGame):
         """
         terminal_size = shutil.get_terminal_size().columns
         clear_terminal()
-        print(color_center("Welcome to " +
+        print(ansi_center("Welcome to " +
               Color.color_text(Color.RED, 'Q') +
               Color.color_text(Color.YELLOW, 'W') +
               Color.color_text(Color.NO_COLOR, 'I') +
@@ -355,7 +355,7 @@ class QwixxTerm(QwixxGame):
 if __name__ == "__main__":
     game = QwixxTerm(["stick", "grass"])
 
-    ## Almost finished game
+    ### Almost finished game
     #game.players[0].board.mark(0, 0)
     #game.players[0].board.mark(0, 1)
     #game.players[0].board.mark(0, 2)

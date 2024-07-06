@@ -1,0 +1,43 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "assets"
+		},
+		{
+			"path": "src"
+		},
+		{
+			"path": "tests"
+		}
+	],
+	"settings": {
+		"r.lsp.promptToInstall": false,
+		"python.pythonPath": "/home/matthew/Documents/projects/qwixx/py_qwixx/bin/python",
+		"python.analysis.languageServer": "Pylance",
+		"editor.linkedEditing": true,
+		"search.exclude": {
+			"**/node_modules": true,
+			"**/.git": true,
+			"**/__pycache__": true
+		},
+		"files.exclude": {
+			"**/__pycache__": true,
+			"**/*.pyc": true
+		},
+		"javascript.updateImportsOnFileMove.enabled": "always",
+		"typescript.updateImportsOnFileMove.enabled": "always",
+		"java.configuration.updateBuildConfiguration": "automatic"
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-python.python",
+			"ms-toolsai.jupyter",
+			"ms-vscode.vscode-typescript-next",
+			"redhat.java",
+			"ms-dotnettools.csharp"
+		]
+	}
+}

@@ -1,5 +1,5 @@
 from color import Color
-from utils import strikethrough_text
+from utils import strikethrough
 
 class Square:
     """ 
@@ -28,7 +28,7 @@ class Square:
             str(border) + str(self.value) + str(border)
         )
         if self.marked:
-            text = strikethrough_text(text)
+            text = strikethrough(text)
         return text
     
     # TODO: Doesn't implement crossing out

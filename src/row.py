@@ -1,7 +1,7 @@
 from square import Square
 from color import Color
-from utils import strikethrough_text
-from utils import color_center
+from utils import strikethrough
+from utils import ansi_center
 
 class Row:
     """ 
@@ -79,12 +79,12 @@ class Row:
         row_len = len(self)
         # Display each square
         for square in self.squares:
-            text += color_center(square.term_rep(), sq_width)
+            text += ansi_center(square.term_rep(), sq_width)
         
         # Display lock icon
         lock_icon = Color.color_text(self.squares[-1].color, "L")
         if self.squares[-1].marked: 
-            text += strikethrough_text(lock_icon)
+            text += strikethrough(lock_icon)
         else:
             text += lock_icon
         

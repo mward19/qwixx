@@ -6,7 +6,7 @@ from utils import coord_to_A1
 from utils import valid_A1
 from enum import Enum
 import shutil
-from utils import color_center
+from utils import ansi_center
 
 class BoardState(Enum):
     CONTINUE = 0
@@ -54,7 +54,7 @@ class Board:
         text_row = ' ' * lmargin
         text_row += ''.join([str(column).center(sq_width)
                          for column in range(1, max_row_len+1)])
-        text_row = color_center(text_row, terminal_size)
+        text_row = ansi_center(text_row, terminal_size)
         text += text_row + "\n"
 
         # The rows of the board.
@@ -63,7 +63,7 @@ class Board:
             # Index rows with letters, calculated with ASCII codes
             text_row += chr(65 + row_index).rjust(lmargin) 
             text_row += row.term_rep(sq_width)
-            text_row = color_center(text_row, terminal_size)
+            text_row = ansi_center(text_row, terminal_size)
             text += text_row + "\n"
         
         # Penalties.
