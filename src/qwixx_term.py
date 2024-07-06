@@ -73,31 +73,6 @@ class QwixxTerm(QwixxGame):
         choices_A1 = [coord_to_A1(*c) for c in choices]
         print(", ".join(choices_A1))
 
-    #def white_choice_offturn(self, this_player, turn_player):
-    #    """
-    #    Displays the white die options for `player`.
-    #    Allows them to choose which option they will take.
-    #    Returns:
-    #        (bool) If a square was marked (false if pass or penalty)
-    #    """
-    #    options = this_player.valid_white_options(self.dice)
-#
-    #    # Let the player make a move using A1 notation
-    #    valid_choice = False
-    #    pass_turn = False
-    #    while not valid_choice:
-    #        #self.display_choices(options) # TODO: I think this is distracting
-    #        message = "Choose your move (\"-\" to opt out): "
-    #        user_input = input(message)
-    #        if user_input.strip() == "-":
-    #            valid_choice = True
-    #            pass_turn = True
-    #        else:
-    #            # TODO: Force this to only accept white choice (replace A1_mark)
-    #            valid_choice = this_player.board.A1_mark(user_input.strip())
-#
-    #    return pass_turn
-
     def choice_offturn(self, this_player, turn_player):
         """
         Displays the white die options for `player`.
@@ -161,72 +136,7 @@ class QwixxTerm(QwixxGame):
 
                     valid_choice = False
         return pass_turn
-    
-    #def white_choice_turn(self, player):
-    #    """
-    #    Displays the white die options for `player`.
-    #    Allows them to choose which option they will take.
-    #    Returns:
-    #        (bool) If a square was marked (false if pass or penalty)
-    #    """
-    #    options = player.valid_white_options(self.dice)
-#
-    #    # Let the player make a move using A1 notation
-    #    valid_choice = False
-    #    pass_turn = False
-    #    while not valid_choice:
-    #        #self.display_choices(options) # TODO: I think this is distracting
-    #        message = "Choose your white move (\"-\" to opt out): "
-    #        user_input = input(message)
-    #        if user_input.strip() == "-":
-    #            valid_choice = True
-    #            pass_turn = True
-    #        else:
-    #            # TODO: Force this to only accept white choice (replace A1_mark)
-    #            valid_choice = player.board.A1_mark(user_input.strip())
-#
-    #    return pass_turn
-    #
-    # TODO: fix character length so that white and colored moves have same width
-    #def color_choice_turn(self, player):
-    #    """
-    #    Displays the color die options for `player`.
-    #    Allows them to choose which option they will take.
-    #    Returns:
-    #        (bool) If a square was marked (false if pass or penalty)
-    #    """
-    #    options = player.valid_color_options(self.dice)
-#
-    #    # Let the player make a move using A1 notation
-    #    valid_choice = False
-    #    pass_turn = False
-    #    while not valid_choice:
-    #        #self.display_choices(options) # TODO: I think this is distracting
-    #        message = "Choose your colored move (\"-\" to opt out): "
-    #        user_input = input(message)
-    #        if user_input.strip() == "-":
-    #            valid_choice = True
-    #            pass_turn = True
-    #        else:
-    #            # TODO: Force this to only accept white choice (replace A1_mark)
-    #            valid_choice = player.board.A1_mark(user_input.strip())
-#
-    #    return pass_turn
-    
-    #def all_choice(self, player):
-    #    """
-    #    Displays all dice options for `player`, white first, then colored.
-    #    Allows them to choose which option(s) they will take.
-    #    If no option is chosen, invokes a penalty on the player.
-    #    Returns:
-    #        (bool) If a penalty was taken
-    #    """
-    #    pass_white = self.white_choice_turn(player) #TODO: display updated board
-    #    pass_color = self.color_choice_turn(player)
-    #    penalize = pass_white and pass_color
-    #    if penalize: self.penalize(player)
-    #    return penalize
-    
+
     def penalize(self, player):
         player.penalize()
         self.display_penalize(player)
@@ -318,6 +228,7 @@ class QwixxTerm(QwixxGame):
             7: "7th", 
             8: "8th"
         }
+        # TODO: allow ties
         place = 1
         print(ansi_center(f"Congratulations, {bold(scored[0][0].name)}!", terminal_size))
         for (player, score) in scored:
@@ -442,7 +353,7 @@ class QwixxTerm(QwixxGame):
 
 
 if __name__ == "__main__":
-    game = QwixxTerm(["stick", "grass", "harisone"])
+    game = QwixxTerm(["stick", "grass"])
 
     ## Almost finished game
     #game.players[0].board.mark(0, 0)

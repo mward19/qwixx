@@ -9,9 +9,8 @@ class Row:
     
     Attributes:
         squares (list of Squares): A list of Qwixx board squares
-        scoring (dict: int -> int): TODO
+        scoring (dict: int -> int):
         locked_colors (set: Color)
-        TODO
     """
     def __init__(self, squares, locked_colors):
         self.squares = squares
