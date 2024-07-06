@@ -7,29 +7,58 @@ import random
 from qwixx_game import QwixxGame
 import shutil
 from utils import ansi_center
-from utils import ansi_center
 from utils import strikethrough
 from utils import bold
 from utils import coord_to_A1
 from utils import A1_to_coord
 from utils import valid_A1
-from utils import clear_terminal # TODO: rename "utils" as "termutils" or similar
+from utils import clear_terminal  # TODO: rename "utils" as "termutils" or similar
 import time
+
 
 class QwixxTerm(QwixxGame):
     """
     Runs a game of Qwixx in the terminal.
     """
+
     def __init__(self, names):
         """
         Initializes the Qwixx game using the players' names, default boards, and default dice.
+        
+        Args:
+            names (list of str): Names of the players.
         """
         lc = set()
         players = [Player(name, Board(lc)) for name in names]
         dice = DiceSet()
         super().__init__(players, dice, lc)
-    
+
+    def display_intro(self):
+        """
+        Displays an introduction to the Qwixx game.
+        """
+        terminal_size = shutil.get_terminal_size().columns
+        clear_terminal()
+        print(
+            ansi_center(
+                "Welcome to "
+                + Color.color_text(Color.RED, "Q")
+                + Color.color_text(Color.YELLOW, "W")
+                + Color.color_text(Color.NO_COLOR, "I")
+                + Color.color_text(Color.GREEN, "X")
+                + Color.color_text(Color.BLUE, "X")
+                + "!",
+                terminal_size,
+            )
+        )
+
     def display_player_order(self, player_order):
+        """
+        Displays the order in which players will play.
+        
+        Args:
+            player_order (list of Player): List of Player objects in the order of play.
+        """
         text = "The player order will be:"
         for index, player in enumerate(player_order):
             text += f"\n\t{index+1}. {player.name}"
@@ -37,20 +66,25 @@ class QwixxTerm(QwixxGame):
 
     def roll_dice(self):
         """
-        Roll the dice. 
-        """        
-        self.dice.roll() 
+        Rolls the dice for the current turn.
+        """
+        self.dice.roll()
 
     def display_dice(self):
-        # Display dice
+        """
+        Displays the dice rolls for the current player's turn.
+        """
         terminal_size = shutil.get_terminal_size().columns
         output = ""
         for d in self.dice:
             if d.color not in self.locked_colors:
                 output += self.show_die(d) + " "
         print(ansi_center(output, terminal_size))
-    
+
     def display_white_dice(self):
+        """
+        Displays the white dice options available to the current player.
+        """
         terminal_size = shutil.get_terminal_size().columns
         output = ""
         for d in self.dice:
@@ -59,31 +93,43 @@ class QwixxTerm(QwixxGame):
             elif d.color not in self.locked_colors:
                 output += strikethrough(self.show_die(d)) + " "
         print(ansi_center(output, terminal_size))
-    
+
     def show_die(self, die):
+        """
+        Returns a formatted string representation of a die.
+        
+        Args:
+            die (Die): Die object representing a single die.
+        
+        Returns:
+            str: Formatted string representation of the die.
+        """
         return Color.color_text(die.color, ":" + str(die.last_roll) + ":")
-    
+
     def display_choices(self, choices):
         """
-        Displays the choices listed in `choices`. If there are no choices, displays a message about penalties.
+        Displays the available choices for the player to mark on their board.
+        
         Args:
-            choices (list of (row, column) tuples) 
+            choices (list of tuple): List of (row, column) tuples representing available choices.
         """
-        # TODO: fully implement. A1 list is not enough
         choices_A1 = [coord_to_A1(*c) for c in choices]
         print(", ".join(choices_A1))
 
     def choice_offturn(self, this_player, turn_player):
         """
-        Displays the white die options for `player`.
-        Allows them to choose which option they will take.
+        Allows a player to choose their move using white dice options.
+        
+        Args:
+            this_player (Player): The current player making the choice.
+            turn_player (Player): The player whose turn it is.
+        
         Returns:
-            (bool) If a square was marked (false if pass or penalty)
+            bool: True if a square was marked, False otherwise.
         """
-        white_turn = True # Offturn is always white only.
+        white_turn = True  # Offturn is always white only.
         options = this_player.valid_placements(self.dice, white_turn)
 
-        # Let the player make a move using A1 notation
         valid_choice = False
         pass_turn = False
         while not valid_choice:
@@ -98,21 +144,25 @@ class QwixxTerm(QwixxGame):
                     pass_turn = False
                     valid_choice = True
                     mark_success = this_player.board.mark(r, c)
-                    if not mark_success: raise RuntimeError("Turn validation failed!")
+                    if not mark_success:
+                        raise RuntimeError("Turn validation failed!")
                 else:
                     valid_choice = False
         return pass_turn
-    
+
     def choice_onturn(self, this_player, white_turn=True):
         """
-        Displays the white die options for `player`.
-        Allows them to choose which option they will take.
+        Allows a player to choose their move using either white or colored dice options.
+        
+        Args:
+            this_player (Player): The current player making the choice.
+            white_turn (bool): True if it's the white dice turn, False for colored dice turn.
+        
         Returns:
-            (bool) If a square was marked (false if pass or penalty)
+            bool: True if a square was marked, False otherwise.
         """
         options = this_player.valid_placements(self.dice, white_turn)
 
-        # Let the player make a move using A1 notation
         valid_choice = False
         pass_turn = False
         while not valid_choice:
@@ -131,28 +181,45 @@ class QwixxTerm(QwixxGame):
                     pass_turn = False
                     valid_choice = True
                     mark_success = this_player.board.mark(r, c)
-                    if not mark_success: raise RuntimeError("Turn validation failed!")
+                    if not mark_success:
+                        raise RuntimeError("Turn validation failed!")
                 else:
-
                     valid_choice = False
         return pass_turn
 
     def penalize(self, player):
+        """
+        Penalizes a player for making an invalid move.
+        
+        Args:
+            player (Player): The player to penalize.
+        """
         player.penalize()
         self.display_penalize(player)
 
     def update_lock(self):
+        """
+        Updates the lock status of the boards for all players.
+        """
         for p in self.players:
             p.board.update_lock()
-        return None
 
     def display_penalize(self, player):
+        """
+        Displays a message indicating that a player has taken a penalty.
+        
+        Args:
+            player (Player): The player who took a penalty.
+        """
         terminal_size = shutil.get_terminal_size().columns
         print(f"{player.name} took a penalty!".center(terminal_size))
 
     def display_all_options(self, player):
         """
-        Displays all dice options for `player`, white first, then colored. Used on a player's turn, after a dice roll, but before other players have decided to use the white roll.
+        Displays all dice options available to a player for their turn.
+        
+        Args:
+            player (Player): The current player.
         """
         white_options = player.valid_white_options(self.dice)
         color_options = player.valid_color_options(self.dice)
@@ -163,45 +230,40 @@ class QwixxTerm(QwixxGame):
 
     def display_board(self, player):
         """
-        Displays a player's board. If desired, other player's boards may be displayed, but they would be displayed secondarily.
-        """
-        """
-        Yields a colored representation for terminals using ANSI escape sequences.
+        Displays the board of a player.
+        
+        Args:
+            player (Player): The player whose board to display.
         """
         board = player.board
 
         terminal_size = shutil.get_terminal_size().columns
-        sq_width = 6 # TODO: make this arbitrary choice more robust
+        sq_width = 6
         max_row_len = max([len(row) for row in board.rows])
         lmargin = 3
 
-        # Show player name
         print(ansi_center(f"~~~ {str(player.name)} ~~~", terminal_size))
 
-        text= ""
-        # A header, with numeric column coordinates.
+        text = ""
         text_row = ' ' * lmargin
         text_row += ''.join([str(column).center(sq_width)
-                         for column in range(1, max_row_len+1)])
+                             for column in range(1, max_row_len+1)])
         text_row = ansi_center(text_row, terminal_size)
         text += text_row + "\n"
 
-        # The rows of the board.
         for row_index, row in enumerate(board.rows):
             text_row = ""
-            # Index rows with letters, calculated with ASCII codes
-            text_row += chr(65 + row_index).rjust(lmargin) 
+            text_row += chr(65 + row_index).rjust(lmargin)
             text_row += row.term_rep(sq_width)
             text_row = ansi_center(text_row, terminal_size)
             text += text_row + "\n"
-        
-        # Penalties.
+
         text += f"Penalties: {board.penalties}".center(terminal_size)
         print(text)
-    
+
     def display_boards(self):
         """
-        Displays all players' boards, with equal priority.
+        Displays the boards of all players.
         """
         clear_terminal()
         for player in self.players:
